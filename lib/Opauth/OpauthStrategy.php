@@ -407,6 +407,17 @@ class OpauthStrategy {
 	 * @return string Content resulted from request, without headers
 	 */
 	public static function httpRequest($url, $options = null, &$responseHeaders = null) {
+		// Include User-Agent header. It is required for GitHub requests.
+		if (!$options) {
+			$options = array('http' => array('header' => "User-Agent: opauth"));
+		} else if ($options && !array_key_exists('http', $options)) {
+			$options['http'] = array('header' => "User-Agent: opauth");
+		} else if ($options && array_key_exists('http', $options) && !array_key_exists('header', $options['http'])) {
+			$options['http']['header'] = "User-Agent: opauth";
+		} else if ($options && array_key_exists('http', $options) && array_key_exists('header', $options['http'])) {
+			$options['http']['header'] .= "\r\nUser-Agent: opauth";
+		}
+
 		$context = null;
 		if (!empty($options) && is_array($options)) {
 			if (empty($options['http']['header'])) {
